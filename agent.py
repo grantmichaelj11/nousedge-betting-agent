@@ -27,7 +27,7 @@ model = ChatOpenRouter(
     base_url="https://openrouter.ai/api/v1",
     streaming=True,
     temperature=0.0,
-    reasoning={'effort': 'max'},
+    reasoning={'effort': 'medium'},
 )
 
 agent = create_agent(
