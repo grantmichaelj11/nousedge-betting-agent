@@ -1,13 +1,10 @@
 import feedparser
-import requests
+from curl_cffi import requests as cffi_requests
+from curl_cffi.requests.exceptions import RequestException
 from langchain.tools import tool
 from pydantic import BaseModel, Field, HttpUrl, ValidationError
 
-_session = requests.Session()
-_session.headers.update({
-    "User-Agent": "curl/8.5.0",
-    "Accept": "application/rss+xml, application/xml;q=0.9, */*;q=0.8",
-})
+_session = cffi_requests.Session(impersonate="chrome")
 
 class Article(BaseModel):
     title: str
@@ -36,8 +33,8 @@ def get_RSS_feed(sport: str) -> dict:
 
     try:
         resp = _session.get(url, timeout=15)
-    except requests.RequestException as e:
-        return fail(f"Could not fetch ESPN feed for '{sport}' ({type(e).__name__}).")
+    except RequestException as e:
+        return fail(f"Could not fetch ESPN feed for '{sport}' ({type(e).__name__}: {e}).")
 
     body_start = resp.content[:200].lstrip().lower()
     if resp.status_code != 200 or not body_start.startswith((b"<?xml", b"<rss")):
